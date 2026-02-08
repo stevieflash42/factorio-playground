@@ -4,8 +4,6 @@ Dabbling in decoding, manipulating, and creating Factorio blueprint strings prog
 
 ## Installation
 
-_Written against Python 3.14_
-
 No external dependencies required! Uses only Python standard library.
 - I saw [factorio-draftsman](https://github.com/redruin1/factorio-draftsman) show up in my cursory searches, so I am considering scrapping this repo altogether, but I wanted to fiddle a little
 
@@ -21,7 +19,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### [.vscode\launch.json](.vscode\launch.json)
+### [.vscode/launch.json](.vscode/launch.json)
 
 - Blueprint Examples
 - Blueprint Decoder
@@ -29,4 +27,4 @@ pip install -r requirements.txt
 
 ## Blueprint Format
 
-Based on [Factorio Blueprint String Format](https://wiki.factorio.com/Blueprint_string_format)
+Based on [Factorio Blueprint String Format](https://wiki.factorio.com/Blueprint_string_format) (according to Claude)
