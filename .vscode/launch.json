@@ -1,0 +1,31 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Blueprint Examples",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/blueprint_examples",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Blueprint Decoder",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/blueprint_decoder.py",
+            "console": "integratedTerminal",
+            "args": ["0eNqlkt1uhCAQhd9lrnFTLdhqsk/SbDagtJLwYwE3tYZ376DtJvaiFzXcDIfhmzOTWUDoSY5e2QjtAqpzNkD7skBQb5brrFluJLSQXyK3seicEcry6DwkAsr28gPaMl0ISBtVVHIDrJf5aicjpMcE8heIwOgC/nU2V0Re88ROjMAMLa3piWGhXnnZbRllRTIleqevQg78phCB/8KWEPYxevkxSeBV6Sj9b/XbmXCi8JOYC4qG3ieusQGUrfMGR5FrmpH71XAL51WY8tzKRO60akcLfBwHNH6E+LgjSiM91/0RIN0BMYrDHOIRItsRoxv55xFcvcP1ihtn/9HxBU/Ke6miNBl233QCN1yCdZdYXTW0adhz9cAoLVP6AmbwAj0="]
+        },
+        {
+            "name": "Blueprint Creator",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/factorio_blueprint.py",
+            "console": "integratedTerminal",
+            "args": "${command:pickArgs}"
+        }
+    ]
+}
