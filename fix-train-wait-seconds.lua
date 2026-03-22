@@ -1,5 +1,5 @@
 /c
-local single_train_id = nil -- set to a train ID like 3133 to test one train, nil to run all
+local single_train_id = nil
 for _, train in pairs(game.train_manager.get_trains({})) do
   if single_train_id == nil or train.id == single_train_id then
     local schedule = train.get_schedule()
@@ -10,7 +10,7 @@ for _, train in pairs(game.train_manager.get_trains({})) do
         if record and record.station then
           local station_lower = string.lower(record.station)
           local is_drop = string.find(station_lower, "drop")
-          local is_pickup = string.find(station_lower, "pickup")
+          local is_pickup = string.find(station_lower, "pick")
 
           if is_drop or is_pickup then
             local conditions = schedule.get_wait_conditions{ schedule_index = i }
@@ -22,10 +22,12 @@ for _, train in pairs(game.train_manager.get_trains({})) do
                 game.print("[REPLACED] Train #" .. tostring(train.id) .. " stop '" .. record.station .. "' -> " .. new_type)
                 replaced = replaced + 1
               else
-                game.print("[SKIP] Train #" .. tostring(train.id) .. " stop '" .. record.station .. "' condition does not match (type=" .. cond.type .. " ticks=" .. cond.ticks .. ")")
+                game.print("[SKIP] Train #" .. tostring(train.id) .. " stop '" .. record.station .. "' no match (type=" .. tostring(cond.type) .. " ticks=" .. tostring(cond.ticks) .. ")")
               end
             elseif conditions and #conditions > 1 then
               game.print("[SKIP] Train #" .. tostring(train.id) .. " stop '" .. record.station .. "' has " .. #conditions .. " conditions, leaving untouched")
+            else
+              game.print("[SKIP] Train #" .. tostring(train.id) .. " stop '" .. record.station .. "' has no conditions")
             end
           end
         end
