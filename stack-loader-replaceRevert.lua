@@ -5,18 +5,22 @@ local INSERTER_QUALITY = "legendary"
 local AREA = { left_top = { x = 75, y = 172 }, right_bottom = { x = 88, y = 177 } }
 
 local DIR_AXIS_OFFSET = { [0] = { x = 0, y = -1 }, [2] = { x = 1, y = 0 }, [4] = { x = 0, y = 1 }, [6] = { x = -1, y = 0 } }
-local PICKUP_DIR = { [0] = { x = 0, y = -1 }, [2] = { x = 1, y = 0 }, [4] = { x = 0, y = 1 }, [6] = { x = -1, y = 0 } }
-local DROP_DIR   = { [0] = { x = 0, y =  1 }, [2] = { x = -1, y = 0 }, [4] = { x = 0, y = -1 }, [6] = { x = 1, y = 0 } }
 
 local function pos_key(pos) return pos.x .. "," .. pos.y end
 
 local function set_hand_positions(inserter, pickup_dist, drop_dist)
-    local dir = inserter.direction
-    local p = PICKUP_DIR[dir]
-    local d = DROP_DIR[dir]
-    if not p or not d then return end
-    inserter.pickup_position = { x = inserter.position.x + p.x * pickup_dist, y = inserter.position.y + p.y * pickup_dist }
-    inserter.drop_position   = { x = inserter.position.x + d.x * drop_dist,   y = inserter.position.y + d.y * drop_dist }
+    local default_pickup = inserter.pickup_position
+    local default_drop = inserter.drop_position
+    local pos = inserter.position
+    local pickup_vec = { x = default_pickup.x - pos.x, y = default_pickup.y - pos.y }
+    local drop_vec   = { x = default_drop.x - pos.x,   y = default_drop.y - pos.y }
+    local pickup_len = math.sqrt(pickup_vec.x * pickup_vec.x + pickup_vec.y * pickup_vec.y)
+    local drop_len   = math.sqrt(drop_vec.x * drop_vec.x + drop_vec.y * drop_vec.y)
+    local pickup_norm = { x = pickup_vec.x / pickup_len, y = pickup_vec.y / pickup_len }
+    local drop_norm   = { x = drop_vec.x / drop_len,     y = drop_vec.y / drop_len }
+    inserter.pickup_position = { x = pos.x + pickup_norm.x * pickup_dist, y = pos.y + pickup_norm.y * pickup_dist }
+    inserter.drop_position   = { x = pos.x + drop_norm.x  * drop_dist,   y = pos.y + drop_norm.y  * drop_dist }
+    inserter.direction = inserter.direction
 end
 
 local function replace_single_loader(loader, surface, paired_type)
@@ -41,7 +45,7 @@ local function replace_single_loader(loader, surface, paired_type)
         saved_cb = { circuit_condition = cb.circuit_condition }
     end
     loader.destroy()
-    local inserter = surface.create_entity({ name = INSERTER_NAME, position = pos, direction = direction, force = force, quality = INSERTER_QUALITY })
+    local inserter = surface.create_entity({ name = INSERTER_NAME, position = pos, direction = (direction + 8) % 16, force = force, quality = INSERTER_QUALITY })
     if not inserter then
         game.print("[StackLoader Replace] Failed to create inserter at " .. serpent.line(pos))
         return nil
