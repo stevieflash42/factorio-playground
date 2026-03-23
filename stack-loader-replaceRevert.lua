@@ -4,9 +4,9 @@ local INSERTER_NAME = "bob-express-bulk-inserter"
 local INSERTER_QUALITY = "legendary"
 local AREA = { left_top = { x = 75, y = 172 }, right_bottom = { x = 88, y = 177 } }
 
-local DIR_AXIS_OFFSET = { [0] = { x = 0, y = -1 }, [4] = { x = 1, y = 0 }, [8] = { x = 0, y = 1 }, [12] = { x = -1, y = 0 } }
-local PICKUP_DIR = { [0] = { x = 0, y = -1 }, [4] = { x = 1, y = 0 }, [8] = { x = 0, y = 1 }, [12] = { x = -1, y = 0 } }
-local DROP_DIR   = { [0] = { x = 0, y =  1 }, [4] = { x = -1, y = 0 }, [8] = { x = 0, y = -1 }, [12] = { x = 1, y = 0 } }
+local DIR_AXIS_OFFSET = { [0] = { x = 0, y = -1 }, [2] = { x = 1, y = 0 }, [4] = { x = 0, y = 1 }, [6] = { x = -1, y = 0 } }
+local PICKUP_DIR = { [0] = { x = 0, y = -1 }, [2] = { x = 1, y = 0 }, [4] = { x = 0, y = 1 }, [6] = { x = -1, y = 0 } }
+local DROP_DIR   = { [0] = { x = 0, y =  1 }, [2] = { x = -1, y = 0 }, [4] = { x = 0, y = -1 }, [6] = { x = 1, y = 0 } }
 
 local function pos_key(pos) return pos.x .. "," .. pos.y end
 
@@ -17,7 +17,6 @@ local function set_hand_positions(inserter, pickup_dist, drop_dist)
     if not p or not d then return end
     inserter.pickup_position = { x = inserter.position.x + p.x * pickup_dist, y = inserter.position.y + p.y * pickup_dist }
     inserter.drop_position   = { x = inserter.position.x + d.x * drop_dist,   y = inserter.position.y + d.y * drop_dist }
-    inserter.direction = inserter.direction
 end
 
 local function replace_single_loader(loader, surface, paired_type)
@@ -39,7 +38,7 @@ local function replace_single_loader(loader, surface, paired_type)
     local saved_cb = nil
     local cb = loader.get_control_behavior()
     if cb then
-        saved_cb = { circuit_enable_disable = cb.circuit_enable_disable, circuit_condition = cb.circuit_condition }
+        saved_cb = { circuit_condition = cb.circuit_condition }
     end
     loader.destroy()
     local inserter = surface.create_entity({ name = INSERTER_NAME, position = pos, direction = direction, force = force, quality = INSERTER_QUALITY })
@@ -50,7 +49,6 @@ local function replace_single_loader(loader, surface, paired_type)
     if saved_cb then
         local dst_cb = inserter.get_or_create_control_behavior()
         if dst_cb then
-            if saved_cb.circuit_enable_disable ~= nil then dst_cb.circuit_enable_disable = saved_cb.circuit_enable_disable end
             if saved_cb.circuit_condition then dst_cb.circuit_condition = saved_cb.circuit_condition end
         end
     end
@@ -76,9 +74,9 @@ for _, surface in pairs(game.surfaces) do
     for _, loader in ipairs(loaders) do loader_map[pos_key(loader.position)] = loader end
     local processed = {}
     for _, loader in ipairs(loaders) do
+        if not loader.valid then goto continue end
         local key = pos_key(loader.position)
         if processed[key] then goto continue end
-        if not loader.valid then goto continue end
         local direction = loader.direction
         local offset = DIR_AXIS_OFFSET[direction]
         if not offset then
