@@ -1,6 +1,6 @@
 /c
 local LOADER_NAME = "stack-mdrn-loader"
-local INSERTER_NAME = "bob-express-bulk-inserter"
+local INSERTER_NAME = "stack-inserter"
 local INSERTER_QUALITY = "legendary"
 local AREA = { left_top = { x = 75, y = 172 }, right_bottom = { x = 88, y = 177 } }
 
@@ -45,7 +45,18 @@ local function replace_single_loader(loader, surface, paired_type)
             circuit_enable_disable = cb.circuit_enable_disable,
             logistic_condition = cb.logistic_condition,
             connect_to_logistic_network = cb.connect_to_logistic_network,
+            circuit_set_filters = cb.circuit_set_filters,
         }
+    end
+    local saved_filters = {}
+    local saved_filter_mode = nil
+    local filter_count = loader.filter_slot_count
+    if filter_count and filter_count > 0 then
+        saved_filter_mode = loader.loader_filter_mode
+        for i = 1, filter_count do
+            local f = loader.get_filter(i)
+            if f then saved_filters[i] = f end
+        end
     end
     loader.destroy()
     local inserter = surface.create_entity({ name = INSERTER_NAME, position = pos, direction = direction, force = force, quality = INSERTER_QUALITY })
@@ -60,6 +71,7 @@ local function replace_single_loader(loader, surface, paired_type)
             if saved_cb.circuit_enable_disable then dst_cb.circuit_enable_disable = saved_cb.circuit_enable_disable end
             if saved_cb.logistic_condition then dst_cb.logistic_condition = saved_cb.logistic_condition end
             if saved_cb.connect_to_logistic_network then dst_cb.connect_to_logistic_network = saved_cb.connect_to_logistic_network end
+            if saved_cb.circuit_set_filters then dst_cb.circuit_set_filters = saved_cb.circuit_set_filters end
         end
     end
     local dst_connectors = inserter.get_wire_connectors(false)
@@ -67,6 +79,13 @@ local function replace_single_loader(loader, surface, paired_type)
         for _, saved in ipairs(saved_connections) do
             local dst_connector = dst_connectors[saved.connector_id]
             if dst_connector and saved.target.valid then dst_connector.connect_to(saved.target) end
+        end
+    end
+    if next(saved_filters) then
+        inserter.use_filters = true
+        if saved_filter_mode then inserter.inserter_filter_mode = saved_filter_mode end
+        for i, filter in pairs(saved_filters) do
+            inserter.set_filter(i, filter)
         end
     end
     if paired_type == "input" then
