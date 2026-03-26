@@ -5,8 +5,9 @@ local INSERTER_QUALITY = "legendary"
 local AREA = { left_top = { x = 75, y = 172 }, right_bottom = { x = 88, y = 177 } }
 
 local DIR_AXIS_OFFSET = { [0] = { x = 0, y = -1 }, [4] = { x = 1, y = 0 }, [8] = { x = 0, y = 1 }, [12] = { x = -1, y = 0 } }
-local PICKUP_DIR = { [0] = { x = 0, y =  1 }, [4] = { x = -1, y = 0 }, [8] = { x = 0, y = -1 }, [12] = { x = 1, y = 0 } }
-local DROP_DIR   = { [0] = { x = 0, y = -1 }, [4] = { x =  1, y = 0 }, [8] = { x = 0, y =  1 }, [12] = { x = -1, y = 0 } }
+local PICKUP_DIR = { [0] = { x = 0, y = -1 }, [4] = { x =  1, y = 0 }, [8] = { x = 0, y =  1 }, [12] = { x = -1, y = 0 } }
+local DROP_DIR   = { [0] = { x = 0, y =  1 }, [4] = { x = -1, y = 0 }, [8] = { x = 0, y = -1 }, [12] = { x =  1, y = 0 } }
+local LOADER_DIR_TO_INSERTER_DIR_MAP = { [0] = 8, [4] = 12, [8] = 0, [12] = 4 }
 
 local function pos_key(pos) return pos.x .. "," .. pos.y end
 
@@ -23,7 +24,7 @@ end
 local function replace_single_loader(loader, surface, paired_type)
     if not loader.valid then return nil end
     local pos = loader.position
-    local direction = loader.direction
+    local direction = LOADER_DIR_TO_INSERTER_DIR_MAP[loader.direction]
     local force = loader.force
     local saved_connections = {}
     local connectors = loader.get_wire_connectors(false)
