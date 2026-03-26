@@ -2,7 +2,7 @@
 local LOADER_NAME = "stack-mdrn-loader"
 local INSERTER_NAME = "stack-inserter"
 local INSERTER_QUALITY = "legendary"
-local AREA = { left_top = { x = 75, y = 172 }, right_bottom = { x = 88, y = 177 } }
+local AREA = nil
 
 local DIR_AXIS_OFFSET = { [0] = { x = 0, y = -1 }, [4] = { x = 1, y = 0 }, [8] = { x = 0, y = 1 }, [12] = { x = -1, y = 0 } }
 local PICKUP_DIR = { [0] = { x = 0, y = -1 }, [4] = { x =  1, y = 0 }, [8] = { x = 0, y =  1 }, [12] = { x = -1, y = 0 } }
@@ -97,47 +97,48 @@ local function replace_single_loader(loader, surface, paired_type)
 end
 
 local replaced_count = 0
-local surface = game.surfaces["nauvis"]
-local loaders = surface.find_entities_filtered({ name = LOADER_NAME, area = AREA,  })
-local loader_map = {}
-for _, loader in ipairs(loaders) do loader_map[pos_key(loader.position)] = loader end
-local processed = {}
-for _, loader in ipairs(loaders) do
-    if not loader.valid then goto continue end
-    local key = pos_key(loader.position)
-    if processed[key] then goto continue end
-    local direction = loader.direction
-    local offset = DIR_AXIS_OFFSET[direction]
-    if not offset then
-        game.print("[StackLoader Replace] Unknown direction " .. direction .. " at " .. serpent.line(loader.position))
-        goto continue
-    end
-    local nkey = (loader.position.x + offset.x) .. "," .. (loader.position.y + offset.y)
-    local neighbor = loader_map[nkey]
-    if not neighbor then
-        nkey = (loader.position.x - offset.x) .. "," .. (loader.position.y - offset.y)
-        neighbor = loader_map[nkey]
-    end
-    if neighbor and not processed[nkey] and neighbor.valid and neighbor.direction == direction then
-        local input_loader, output_loader
-        if loader.loader_type == "input" then
-            input_loader = neighbor
-            output_loader = loader
-        else
-            input_loader = loader
-            output_loader = neighbor
+for _, surface in pairs(game.surfaces) do
+    local loaders = surface.find_entities_filtered({ name = LOADER_NAME, area = AREA,  })
+    local loader_map = {}
+    for _, loader in ipairs(loaders) do loader_map[pos_key(loader.position)] = loader end
+    local processed = {}
+    for _, loader in ipairs(loaders) do
+        if not loader.valid then goto continue end
+        local key = pos_key(loader.position)
+        if processed[key] then goto continue end
+        local direction = loader.direction
+        local offset = DIR_AXIS_OFFSET[direction]
+        if not offset then
+            game.print("[StackLoader Replace] Unknown direction " .. direction .. " at " .. serpent.line(loader.position))
+            goto continue
         end
-        processed[key] = true
-        processed[nkey] = true
-        local input_inserter  = replace_single_loader(input_loader,  surface, "input")
-        local output_inserter = replace_single_loader(output_loader, surface, "output")
-        if input_inserter  then replaced_count = replaced_count + 1 end
-        if output_inserter then replaced_count = replaced_count + 1 end
-    else
-        processed[key] = true
-        local inserter = replace_single_loader(loader, surface, nil)
-        if inserter then replaced_count = replaced_count + 1 end
+        local nkey = (loader.position.x + offset.x) .. "," .. (loader.position.y + offset.y)
+        local neighbor = loader_map[nkey]
+        if not neighbor then
+            nkey = (loader.position.x - offset.x) .. "," .. (loader.position.y - offset.y)
+            neighbor = loader_map[nkey]
+        end
+        if neighbor and not processed[nkey] and neighbor.valid and neighbor.direction == direction then
+            local input_loader, output_loader
+            if loader.loader_type == "input" then
+                input_loader = neighbor
+                output_loader = loader
+            else
+                input_loader = loader
+                output_loader = neighbor
+            end
+            processed[key] = true
+            processed[nkey] = true
+            local input_inserter  = replace_single_loader(input_loader,  surface, "input")
+            local output_inserter = replace_single_loader(output_loader, surface, "output")
+            if input_inserter  then replaced_count = replaced_count + 1 end
+            if output_inserter then replaced_count = replaced_count + 1 end
+        else
+            processed[key] = true
+            local inserter = replace_single_loader(loader, surface, nil)
+            if inserter then replaced_count = replaced_count + 1 end
+        end
+        ::continue::
     end
-    ::continue::
 end
 game.print("[StackLoader Replace] Done. Replaced " .. replaced_count .. " stack loaders with legendary ultimate bulk inserters.")
