@@ -83,7 +83,7 @@ local function replace_single_loader(loader, surface, paired_type)
     end
     if next(saved_filters) then
         inserter.use_filters = true
-        if saved_filter_mode then inserter.inserter_filter_mode = saved_filter_mode end
+        if saved_filter_mode and saved_filter_mode ~= "none" then inserter.inserter_filter_mode = saved_filter_mode end
         for i, filter in pairs(saved_filters) do
             inserter.set_filter(i, filter)
         end
