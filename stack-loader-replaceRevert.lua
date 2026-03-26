@@ -141,4 +141,4 @@ for _, surface in pairs(game.surfaces) do
         ::continue::
     end
 end
-game.print("[StackLoader Replace] Done. Replaced " .. replaced_count .. " stack loaders with legendary ultimate bulk inserters.")
+game.print("[StackLoader Replace] Done. Replaced " .. replaced_count .. " stack loaders with legendary stack inserters.")
